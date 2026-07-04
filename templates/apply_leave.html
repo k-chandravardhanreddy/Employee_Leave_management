@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% from 'Macros.html' import employee_sidebar %}
+{% block title %}Apply Leave — {{ company_name }}{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {{ employee_sidebar('apply') }}
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-toggle" id="mobileToggle">☰</button>
+        <div class="topbar-title">
+          <h1>Apply Leave</h1>
+          <p>Submit a new leave request</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <div class="breadcrumb">
+        <a href="{{ url_for('employee_dashboard') }}">Dashboard</a>
+        <span class="sep">›</span>
+        <span class="current">Apply Leave</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;" class="apply-grid">
+
+        <!-- Form -->
+        <div class="card">
+          <div class="card-header"><h3>✏️ Leave Application Form</h3></div>
+          <div class="card-body">
+            <form method="POST" action="{{ url_for('apply_leave') }}">
+              <div class="form-group">
+                <label>Leave Type *</label>
+                <select name="leave_type" id="leave_type" class="form-control" required>
+                  <option value="">Select leave type</option>
+                  <option value="Casual">Casual Leave ({{ emp.casual_balance }} days left)</option>
+                  <option value="Sick">Sick Leave ({{ emp.sick_balance }} days left)</option>
+                  <option value="Earned">Earned Leave ({{ emp.earned_balance }} days left)</option>
+                </select>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Start Date *</label>
+                  <input type="date" id="start_date" name="start_date"
+                         class="form-control" required />
+                </div>
+                <div class="form-group">
+                  <label>End Date *</label>
+                  <input type="date" id="end_date" name="end_date"
+                         class="form-control" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Number of Days</label>
+                <div style="padding:.6rem 1rem;background:var(--bg);border-radius:8px;
+                            border:1.5px solid var(--border);font-size:.87rem;font-weight:600;">
+                  <span id="total_days_preview" style="color:var(--teal);">Select dates</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Reason *</label>
+                <textarea name="reason" class="form-control"
+                          placeholder="Please provide a reason for your leave request..."
+                          required></textarea>
+              </div>
+
+              <div style="display:flex;gap:.75rem;margin-top:.5rem;">
+                <button type="submit" class="btn btn-primary">Submit Application</button>
+                <a href="{{ url_for('employee_dashboard') }}" class="btn btn-outline">Cancel</a>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Balance sidebar -->
+        <div>
+          <div class="card mb-3">
+            <div class="card-header"><h3>📊 Leave Balance</h3></div>
+            <div class="card-body">
+              <div class="balance-grid" style="grid-template-columns:1fr;">
+                <div class="balance-item">
+                  <div class="balance-header">
+                    <span class="balance-label">Casual</span>
+                    <span class="balance-count fw-700" style="color:var(--teal);">
+                      {{ emp.casual_balance }}
+                    </span>
+                  </div>
+                  <div class="balance-bar">
+                    <div class="balance-fill teal"
+                         data-pct="{{ (emp.casual_balance/12*100)|round }}"></div>
+                  </div>
+                </div>
+                <div class="balance-item">
+                  <div class="balance-header">
+                    <span class="balance-label">Sick</span>
+                    <span class="balance-count fw-700" style="color:var(--info);">
+                      {{ emp.sick_balance }}
+                    </span>
+                  </div>
+                  <div class="balance-bar">
+                    <div class="balance-fill blue"
+                         data-pct="{{ (emp.sick_balance/10*100)|round }}"></div>
+                  </div>
+                </div>
+                <div class="balance-item">
+                  <div class="balance-header">
+                    <span class="balance-label">Earned</span>
+                    <span class="balance-count fw-700" style="color:var(--warning);">
+                      {{ emp.earned_balance }}
+                    </span>
+                  </div>
+                  <div class="balance-bar">
+                    <div class="balance-fill orange"
+                         data-pct="{{ (emp.earned_balance/15*100)|round }}"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h3>ℹ️ Guidelines</h3></div>
+            <div class="card-body">
+              <ul style="list-style:none;display:flex;flex-direction:column;gap:.65rem;">
+                <li class="fs-sm">📌 Apply at least 2 days in advance for planned leaves.</li>
+                <li class="fs-sm">🤒 Sick leave can be applied retroactively with a note.</li>
+                <li class="fs-sm">⏳ Pending approval takes 1–2 business days.</li>
+                <li class="fs-sm">📞 For urgent cases, contact HR directly.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+@media(max-width:768px){.apply-grid{grid-template-columns:1fr!important;}}
+</style>
+{% endblock %}

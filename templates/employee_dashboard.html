@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% from 'Macros.html' import employee_sidebar %}
+{% block title %}Dashboard — {{ company_name }}{% endblock %}
+{% block body %}
+<div class="app-layout">
+  {{ employee_sidebar('dashboard') }}
+
+  <div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-toggle" id="mobileToggle">☰</button>
+        <div class="topbar-title">
+          <h1>Dashboard</h1>
+          <p>Welcome back, {{ emp.name }}!</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="fs-sm text-muted">{{ emp.emp_id }}</span>
+        <a href="{{ url_for('apply_leave') }}" class="btn btn-primary btn-sm">
+          + Apply Leave
+        </a>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Stat Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon teal">📋</div>
+          <div class="stat-info">
+            <div class="stat-value" data-count="{{ stats.total or 0 }}">{{ stats.total or 0 }}</div>
+            <div class="stat-label">Total Applications</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">⏳</div>
+          <div class="stat-info">
+            <div class="stat-value" data-count="{{ stats.pending or 0 }}">{{ stats.pending or 0 }}</div>
+            <div class="stat-label">Pending</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">✅</div>
+          <div class="stat-info">
+            <div class="stat-value" data-count="{{ stats.approved or 0 }}">{{ stats.approved or 0 }}</div>
+            <div class="stat-label">Approved</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">❌</div>
+          <div class="stat-info">
+            <div class="stat-value" data-count="{{ stats.rejected or 0 }}">{{ stats.rejected or 0 }}</div>
+            <div class="stat-label">Rejected</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.5rem;" class="two-col">
+
+        <!-- Leave Balance Card -->
+        <div class="card">
+          <div class="card-header">
+            <h3>🗓 Leave Balance</h3>
+            <a href="{{ url_for('apply_leave') }}" class="btn btn-sm btn-outline">Apply →</a>
+          </div>
+          <div class="card-body">
+            <div class="balance-grid" style="grid-template-columns:1fr;">
+
+              <div class="balance-item">
+                <div class="balance-header">
+                  <span class="balance-label">Casual Leave</span>
+                  <span class="balance-count">{{ emp.casual_balance }} / 12 days</span>
+                </div>
+                <div class="balance-bar">
+                  <div class="balance-fill teal"
+                       data-pct="{{ (emp.casual_balance / 12 * 100)|round }}"></div>
+                </div>
+              </div>
+
+              <div class="balance-item">
+                <div class="balance-header">
+                  <span class="balance-label">Sick Leave</span>
+                  <span class="balance-count">{{ emp.sick_balance }} / 10 days</span>
+                </div>
+                <div class="balance-bar">
+                  <div class="balance-fill blue"
+                       data-pct="{{ (emp.sick_balance / 10 * 100)|round }}"></div>
+                </div>
+              </div>
+
+              <div class="balance-item">
+                <div class="balance-header">
+                  <span class="balance-label">Earned Leave</span>
+                  <span class="balance-count">{{ emp.earned_balance }} / 15 days</span>
+                </div>
+                <div class="balance-bar">
+                  <div class="balance-fill orange"
+                       data-pct="{{ (emp.earned_balance / 15 * 100)|round }}"></div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Summary -->
+        <div class="card">
+          <div class="card-header">
+            <h3>👤 Profile Summary</h3>
+            <a href="{{ url_for('employee_profile') }}" class="btn btn-sm btn-outline">View →</a>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem;">
+              <div class="user-avatar" style="width:52px;height:52px;font-size:1.3rem;">
+                {{ emp.name[0]|upper }}
+              </div>
+              <div>
+                <div class="fw-700" style="font-size:.95rem;">{{ emp.name }}</div>
+                <div class="text-muted fs-sm">{{ emp.designation }}</div>
+                <div class="text-muted fs-xs">{{ emp.department }}</div>
+              </div>
+            </div>
+            <div class="info-grid" style="grid-template-columns:1fr 1fr;">
+              <div class="info-item">
+                <div class="info-label">Employee ID</div>
+                <div class="info-value">{{ emp.emp_id }}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Join Date</div>
+                <div class="info-value">{{ emp.join_date.strftime('%d %b %Y') if emp.join_date else '—' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Leaves -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📅 Recent Applications</h3>
+          <a href="{{ url_for('leave_history') }}" class="btn btn-sm btn-outline">View All →</a>
+        </div>
+        <div class="table-wrapper">
+          {% if recent %}
+          <table>
+            <thead>
+              <tr>
+                <th>Leave Type</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Days</th>
+                <th>Applied On</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for leave in recent %}
+              <tr>
+                <td><span class="badge badge-{{ leave.leave_type|lower }}">{{ leave.leave_type }}</span></td>
+                <td>{{ leave.start_date.strftime('%d %b %Y') }}</td>
+                <td>{{ leave.end_date.strftime('%d %b %Y') }}</td>
+                <td><strong>{{ leave.total_days }}</strong></td>
+                <td class="text-muted fs-sm">{{ leave.applied_on.strftime('%d %b %Y') }}</td>
+                <td>
+                  <span class="badge badge-{{ leave.status|lower }}">
+                    <span class="badge-dot"></span> {{ leave.status }}
+                  </span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h3>No applications yet</h3>
+            <p>Your leave applications will appear here.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </div><!-- /main-content -->
+</div>
+
+<style>
+@media(max-width:768px){.two-col{grid-template-columns:1fr!important;}}
+</style>
+{% endblock %}

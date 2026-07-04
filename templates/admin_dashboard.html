@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% from 'Macros.html' import admin_sidebar %}
+{% block title %}Admin Dashboard — {{ company_name }}{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {{ admin_sidebar('dashboard') }}
+
+  <div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-toggle" id="mobileToggle">☰</button>
+        <div class="topbar-title">
+          <h1>Admin Dashboard</h1>
+          <p>Welcome, {{ session.admin_name }}!</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="{{ url_for('admin_leave_requests') }}" class="btn btn-primary btn-sm">📋 Leave Requests</a>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon navy">👥</div>
+          <div class="stat-info">
+            <div class="stat-value" data-count="{{ total_emp or 0 }}">{{ total_emp or 0 }}</div>
+            <div class="stat-label">Total Employees</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon teal">📋</div>
+          <div class="stat-info">
+            <div class="stat-value" data-count="{{ stats.total or 0 }}">{{ stats.total or 0 }}</div>
+            <div class="stat-label">Total Requests</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">⏳</div>
+          <div class="stat-info">
+            <div class="stat-value" data-count="{{ stats.pending or 0 }}">{{ stats.pending or 0 }}</div>
+            <div class="stat-label">Pending</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">✅</div>
+          <div class="stat-info">
+            <div class="stat-value" data-count="{{ stats.approved or 0 }}">{{ stats.approved or 0 }}</div>
+            <div class="stat-label">Approved</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">❌</div>
+          <div class="stat-info">
+            <div class="stat-value" data-count="{{ stats.rejected or 0 }}">{{ stats.rejected or 0 }}</div>
+            <div class="stat-label">Rejected</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Pending Requests -->
+      <div class="card">
+        <div class="card-header">
+          <h3>⏳ Recent Pending Requests</h3>
+          <a href="{{ url_for('admin_leave_requests', status='Pending') }}" class="btn btn-sm btn-outline">View All →</a>
+        </div>
+        <div class="table-wrapper">
+          {% if pending %}
+          <table>
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Leave Type</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Days</th>
+                <th>Applied On</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for leave in pending %}
+              <tr>
+                <td>
+                  <a href="{{ url_for('admin_employee_detail', emp_id=leave.employee_id) }}">
+                    {{ leave.employee.name }}
+                  </a>
+                </td>
+                <td><span class="badge badge-{{ leave.leave_type|lower }}">{{ leave.leave_type }}</span></td>
+                <td>{{ leave.start_date.strftime('%d %b %Y') }}</td>
+                <td>{{ leave.end_date.strftime('%d %b %Y') }}</td>
+                <td><strong>{{ leave.total_days }}</strong></td>
+                <td class="text-muted fs-sm">{{ leave.applied_on.strftime('%d %b %Y') }}</td>
+                <td>
+                  <a href="{{ url_for('admin_leave_requests') }}" class="btn btn-sm btn-primary">Review</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <div class="empty-state">
+            <div class="empty-icon">🎉</div>
+            <h3>No pending requests!</h3>
+            <p>All leave requests have been processed.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:1.5rem;">
+        <a href="{{ url_for('admin_leave_requests') }}" class="card" style="padding:1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:transform .2s;">
+          <div class="stat-icon teal" style="width:48px;height:48px;">📋</div>
+          <div>
+            <div style="font-weight:700;color:var(--navy);">Manage Leave Requests</div>
+            <div class="fs-sm text-muted">Approve or reject pending leaves</div>
+          </div>
+        </a>
+        <a href="{{ url_for('admin_employees') }}" class="card" style="padding:1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:transform .2s;">
+          <div class="stat-icon navy" style="width:48px;height:48px;">👥</div>
+          <div>
+            <div style="font-weight:700;color:var(--navy);">Manage Employees</div>
+            <div class="fs-sm text-muted">View all employee records</div>
+          </div>
+        </a>
+      </div>
+
+    </div><!-- /page-content -->
+  </div><!-- /main-content -->
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}System Initialization — Setup Wizard{% endblock %}
+{% block body %}
+<div class="auth-page" style="align-items:center; min-height:85vh; padding:3rem 1rem;">
+  <div class="login-box" style="margin:auto; max-width:520px; width:100%;">
+    <div class="auth-header">
+      <div class="auth-icon">🚀</div>
+      <h2>System Initialization</h2>
+      <p>Configure your organization and create the primary administrator account</p>
+    </div>
+
+    <!-- Alert / Informational card -->
+    <div class="card" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:1rem 1.25rem; border-radius:8px; margin-bottom:1.5rem;">
+      <p class="fs-xs text-muted" style="line-height:1.4; margin:0;">
+        <strong>💡 Note:</strong> The allowed domain for employee registration is derived from the administrator's email. For example, using <code>admin@mycompany.com</code> restricts employee registration emails to <code>@mycompany.com</code>.
+      </p>
+    </div>
+
+    <form method="POST" action="{{ url_for('setup_wizard') }}">
+      <div class="form-group">
+        <label class="form-label" style="font-weight:600;">Organization / Company Name *</label>
+        <input type="text" name="company_name" class="form-control"
+               placeholder="e.g. Acme Corporation" required autofocus />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" style="font-weight:600;">Administrator Full Name *</label>
+        <input type="text" name="admin_name" class="form-control"
+               placeholder="e.g. Jane Doe" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" style="font-weight:600;">Administrator Email Address *</label>
+        <input type="email" name="admin_email" class="form-control"
+               placeholder="e.g. admin@mycompany.com" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" style="font-weight:600;">Administrator Password *</label>
+        <input type="password" name="admin_password" class="form-control"
+               placeholder="Choose a strong password (min 6 characters)" required minlength="6" />
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block mt-4" style="height:3rem; font-size:1.05rem; font-weight:600;">
+        Initialize System & Deploy →
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

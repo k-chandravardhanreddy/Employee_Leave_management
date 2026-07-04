@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}Register — {{ company_name }}{% endblock %}
+{% block body %}
+<div class="auth-page" style="align-items:flex-start;padding:2rem 1rem;">
+  <div class="register-box" style="margin:2rem auto;">
+    <div class="auth-header">
+      <div class="auth-icon">✍️</div>
+      <h2>Employee Registration</h2>
+      <p>Create your company account. A verification code will be sent to your email.</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('employee_register') }}">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" name="name" class="form-control"
+                 placeholder="John Doe" required />
+        </div>
+        <div class="form-group">
+          <label>Email Address * <span class="text-muted fs-xs">(@{{ company_domain }})</span></label>
+          <input type="email" name="email" class="form-control"
+                 placeholder="john@{{ company_domain }}" required pattern=".+@{{ company_domain }}$"
+                 title="Please enter your company email address ending with @{{ company_domain }}" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Department *</label>
+          <select name="department" class="form-control" required>
+            <option value="">Select Department</option>
+            <option>Engineering</option>
+            <option>Human Resources</option>
+            <option>Finance</option>
+            <option>Marketing</option>
+            <option>Operations</option>
+            <option>Sales</option>
+            <option>IT Support</option>
+            <option>Administration</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Designation *</label>
+          <input type="text" name="designation" class="form-control"
+                 placeholder="Software Engineer" required />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" name="phone" class="form-control"
+                 placeholder="+91 98765 43210" />
+        </div>
+        <div class="form-group">
+          <label>Date of Joining *</label>
+          <input type="date" name="join_date" class="form-control" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Password * <span class="text-muted fs-xs">(min 6 characters)</span></label>
+        <input type="password" name="password" class="form-control"
+               placeholder="Choose a strong password" required minlength="6" />
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block mt-3">
+        Create Account →
+      </button>
+    </form>
+
+    <p class="text-center mt-3 fs-sm text-muted">
+      Already have an account?
+      <a href="{{ url_for('employee_login') }}">Sign in</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

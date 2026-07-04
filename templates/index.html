@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}{{ company_name }} — Employee Leave Management{% endblock %}
+{% block body %}
+<div class="landing">
+  <div class="landing-logo">📋</div>
+  <h1>{{ company_name }}</h1>
+  <p>A modern, streamlined leave management system for employees and HR administrators.</p>
+
+  <div class="landing-cards">
+    <a href="{{ url_for('employee_login') }}" class="portal-card">
+      <div class="portal-icon">👤</div>
+      <h3>Employee Portal</h3>
+      <p>Apply for leave and track your requests</p>
+    </a>
+    <a href="{{ url_for('admin_login') }}" class="portal-card">
+      <div class="portal-icon">⚙️</div>
+      <h3>Admin Portal</h3>
+      <p>Manage leave approvals and employee records</p>
+    </a>
+  </div>
+</div>
+{% endblock %}

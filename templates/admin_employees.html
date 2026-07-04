@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% from 'Macros.html' import admin_sidebar %}
+{% block title %}Employees — Admin Dashboard{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {{ admin_sidebar('employees') }}
+
+  <div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-toggle" id="mobileToggle">☰</button>
+        <div class="topbar-title">
+          <h1>Employees</h1>
+          <p>Manage all company employees</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Search & Filter -->
+      <div class="card" style="margin-bottom:1.2rem;">
+        <div class="card-body" style="padding:.9rem 1.2rem;">
+          <form method="GET" style="display:grid;grid-template-columns:2fr 1fr auto;gap:.8rem;align-items:flex-end;">
+            <div>
+              <label style="display:block;font-size:.78rem;font-weight:600;color:var(--slate);
+                            text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem;">
+                Search
+              </label>
+              <input type="text" name="search" class="form-control"
+                     placeholder="Name / Email / Employee ID…" value="{{ search }}" />
+            </div>
+            <div>
+              <label style="display:block;font-size:.78rem;font-weight:600;color:var(--slate);
+                            text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem;">
+                Department
+              </label>
+              <select name="dept" class="form-control">
+                <option value="All">All Departments</option>
+                {% for d in depts %}
+                <option value="{{ d }}" {% if dept == d %}selected{% endif %}>{{ d }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div style="display:flex;gap:.5rem;align-items:flex-end;">
+              <button type="submit" class="btn btn-primary">Search</button>
+              {% if search or dept != 'All' %}
+              <a href="{{ url_for('admin_employees') }}" class="btn btn-outline">Clear</a>
+              {% endif %}
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Employees Table -->
+      <div class="card">
+        <div class="card-header">
+          <h3>👥 Employee List</h3>
+          <span class="fs-sm text-muted">{{ employees|length }} employee(s)</span>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Employee ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Department</th>
+                <th>Designation</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for emp in employees %}
+              <tr>
+                <td><strong>{{ emp.emp_id }}</strong></td>
+                <td>
+                  <div class="emp-cell">
+                    <div class="emp-avatar-sm">{{ emp.name[0]|upper }}</div>
+                    <div class="emp-name">{{ emp.name }}</div>
+                  </div>
+                </td>
+                <td class="fs-sm">{{ emp.email }}</td>
+                <td><span class="badge badge-casual">{{ emp.department }}</span></td>
+                <td class="fs-sm text-muted">{{ emp.designation }}</td>
+                <td>
+                  {% if emp.status == 'Pending' %}
+                    <span class="badge" style="background:var(--warning-light);color:var(--warning);">Pending</span>
+                  {% elif emp.status == 'Active' %}
+                    <span class="badge" style="background:var(--success-light);color:var(--success);">Active</span>
+                  {% else %}
+                    <span class="badge" style="background:var(--danger-light);color:var(--danger);">Rejected</span>
+                  {% endif %}
+                </td>
+                <td style="display:flex;gap:0.3rem;">
+                  {% if emp.status == 'Pending' %}
+                    <form action="{{ url_for('admin_employee_action', emp_id=emp.id) }}" method="POST" style="margin:0;">
+                      <input type="hidden" name="action" value="Active">
+                      <button type="submit" class="btn btn-sm" style="background:var(--success);color:white;border:none;">Approve</button>
+                    </form>
+                    <form action="{{ url_for('admin_employee_action', emp_id=emp.id) }}" method="POST" style="margin:0;">
+                      <input type="hidden" name="action" value="Rejected">
+                      <button type="submit" class="btn btn-sm" style="background:var(--danger);color:white;border:none;">Reject</button>
+                    </form>
+                  {% endif %}
+                  <a href="{{ url_for('admin_employee_detail', emp_id=emp.id) }}"
+                     class="btn btn-sm btn-outline">View</a>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="7" style="text-align:center;padding:2.5rem;color:var(--muted);">
+                  No employees found.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </div><!-- /main-content -->
+</div>
+{% endblock %}

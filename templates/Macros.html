@@ -1,0 +1,98 @@
+{% macro employee_sidebar(active_page='') %}
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">📋</div>
+    <div class="brand-text">
+      <h2>{{ company_name }}</h2>
+      <p>Employee Portal</p>
+    </div>
+  </div>
+
+  <div class="sidebar-user">
+    <div class="user-avatar">{{ session.employee_name[0]|upper if session.employee_name else 'E' }}</div>
+    <div class="user-info">
+      <div class="user-name">{{ session.employee_name }}</div>
+      <div class="user-role">{{ session.employee_emp_id }}</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a href="{{ url_for('employee_dashboard') }}"
+       class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+      <span class="nav-icon">🏠</span> Dashboard
+    </a>
+    <a href="{{ url_for('apply_leave') }}"
+       class="nav-item {% if active_page == 'apply' %}active{% endif %}">
+      <span class="nav-icon">✏️</span> Apply Leave
+    </a>
+    <a href="{{ url_for('leave_history') }}"
+       class="nav-item {% if active_page == 'history' %}active{% endif %}">
+      <span class="nav-icon">📅</span> Leave History
+    </a>
+    <a href="{{ url_for('employee_profile') }}"
+       class="nav-item {% if active_page == 'profile' %}active{% endif %}">
+      <span class="nav-icon">👤</span> My Profile
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a href="{{ url_for('employee_logout') }}" class="nav-item"
+       data-confirm="Are you sure you want to logout?">
+      <span class="nav-icon">🚪</span> Logout
+    </a>
+  </div>
+</aside>
+<div class="overlay-backdrop" id="sidebarBackdrop"></div>
+{% endmacro %}
+
+
+{% macro admin_sidebar(active_page='') %}
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">⚙️</div>
+    <div class="brand-text">
+      <h2>{{ company_name }}</h2>
+      <p>Admin Panel</p>
+    </div>
+  </div>
+
+  <div class="sidebar-user">
+    <div class="user-avatar" style="background:linear-gradient(135deg,#e67e22,#d35400)">
+      {{ session.admin_name[0]|upper if session.admin_name else 'A' }}
+    </div>
+    <div class="user-info">
+      <div class="user-name">{{ session.admin_name }}</div>
+      <div class="user-role">Administrator</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Dashboard</div>
+    <a href="{{ url_for('admin_dashboard') }}"
+       class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+      <span class="nav-icon">🏠</span> Dashboard
+    </a>
+
+    <div class="nav-section-label">Leave Management</div>
+    <a href="{{ url_for('admin_leave_requests') }}"
+       class="nav-item {% if active_page == 'leaves' %}active{% endif %}">
+      <span class="nav-icon">📋</span> Leave Requests
+    </a>
+
+    <div class="nav-section-label">HR</div>
+    <a href="{{ url_for('admin_employees') }}"
+       class="nav-item {% if active_page == 'employees' %}active{% endif %}">
+      <span class="nav-icon">👥</span> Employees
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a href="{{ url_for('admin_logout') }}" class="nav-item"
+       data-confirm="Are you sure you want to logout?">
+      <span class="nav-icon">🚪</span> Logout
+    </a>
+  </div>
+</aside>
+<div class="overlay-backdrop" id="sidebarBackdrop"></div>
+{% endmacro %}

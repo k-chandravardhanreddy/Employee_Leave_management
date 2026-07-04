@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% from 'Macros.html' import admin_sidebar %}
+{% block title %}{{ emp.name }} — Employee Details{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {{ admin_sidebar('employees') }}
+
+  <div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-toggle" id="mobileToggle">☰</button>
+        <div class="topbar-title">
+          <h1>Employee Details</h1>
+          <p>{{ emp.name }} — {{ emp.emp_id }}</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="{{ url_for('admin_employees') }}" class="btn btn-outline btn-sm">← Back</a>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Profile Hero -->
+      <div class="profile-hero" style="margin-bottom:1.5rem;">
+        <div class="profile-avatar">{{ emp.name[0]|upper }}</div>
+        <div>
+          <div class="profile-name">{{ emp.name }}</div>
+          <div class="profile-sub">{{ emp.designation }} · {{ emp.department }}</div>
+          <div class="profile-sub" style="margin-top:.3rem;">{{ emp.emp_id }}</div>
+        </div>
+      </div>
+
+      <!-- Employee Info -->
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-header"><h3>📋 Employee Information</h3></div>
+        <div class="card-body">
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">Employee ID</div>
+              <div class="info-value">{{ emp.emp_id }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Email</div>
+              <div class="info-value">{{ emp.email }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Department</div>
+              <div class="info-value">{{ emp.department }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Designation</div>
+              <div class="info-value">{{ emp.designation }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Phone</div>
+              <div class="info-value">{{ emp.phone or '—' }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Join Date</div>
+              <div class="info-value">{{ emp.join_date.strftime('%d %b %Y') if emp.join_date else '—' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leave Balances -->
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-header"><h3>📊 Leave Balance</h3></div>
+        <div class="card-body">
+          <div class="balance-grid">
+            <div class="balance-item">
+              <div class="balance-header">
+                <span class="balance-label">🎫 Casual Leave</span>
+                <span class="balance-count">{{ emp.casual_balance }} / 12 days</span>
+              </div>
+              <div class="balance-bar">
+                <div class="balance-fill teal"
+                     data-pct="{{ (emp.casual_balance / 12 * 100)|round }}"></div>
+              </div>
+            </div>
+            <div class="balance-item">
+              <div class="balance-header">
+                <span class="balance-label">🏥 Sick Leave</span>
+                <span class="balance-count">{{ emp.sick_balance }} / 10 days</span>
+              </div>
+              <div class="balance-bar">
+                <div class="balance-fill blue"
+                     data-pct="{{ (emp.sick_balance / 10 * 100)|round }}"></div>
+              </div>
+            </div>
+            <div class="balance-item">
+              <div class="balance-header">
+                <span class="balance-label">⭐ Earned Leave</span>
+                <span class="balance-count">{{ emp.earned_balance }} / 15 days</span>
+              </div>
+              <div class="balance-bar">
+                <div class="balance-fill orange"
+                     data-pct="{{ (emp.earned_balance / 15 * 100)|round }}"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leave History -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📅 Leave History</h3>
+          <span class="fs-sm text-muted">{{ leaves|length }} record(s)</span>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>From → To</th>
+                <th>Days</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Applied On</th>
+                <th>Remarks</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for leave in leaves %}
+              <tr>
+                <td>
+                  <span class="badge badge-{{ leave.leave_type|lower }}">{{ leave.leave_type }}</span>
+                </td>
+                <td class="fs-sm">
+                  {{ leave.start_date.strftime('%d %b %Y') }} → {{ leave.end_date.strftime('%d %b %Y') }}
+                </td>
+                <td><strong>{{ leave.total_days }}</strong></td>
+                <td class="fs-sm text-muted">
+                  {{ leave.reason[:60] }}{% if leave.reason|length > 60 %}…{% endif %}
+                </td>
+                <td>
+                  <span class="badge badge-{{ leave.status|lower }}">
+                    <span class="badge-dot"></span> {{ leave.status }}
+                  </span>
+                </td>
+                <td class="text-muted fs-sm">{{ leave.applied_on.strftime('%d %b %Y') }}</td>
+                <td class="fs-sm text-muted">{{ leave.admin_remarks or '—' }}</td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="7" style="text-align:center;padding:2.5rem;color:var(--muted);">
+                  No leave history found.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </div><!-- /main-content -->
+</div>
+{% endblock %}

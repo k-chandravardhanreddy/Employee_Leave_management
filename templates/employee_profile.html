@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% from 'Macros.html' import employee_sidebar %}
+{% block title %}My Profile — {{ company_name }}{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {{ employee_sidebar('profile') }}
+
+  <div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-toggle" id="mobileToggle">☰</button>
+        <div class="topbar-title">
+          <h1>My Profile</h1>
+          <p>View and update your profile information</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="{{ url_for('employee_dashboard') }}" class="btn btn-outline btn-sm">← Dashboard</a>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Profile Hero -->
+      <div class="profile-hero" style="margin-bottom:1.5rem;">
+        <div class="profile-avatar">{{ emp.name[0]|upper }}</div>
+        <div>
+          <div class="profile-name">{{ emp.name }}</div>
+          <div class="profile-sub">{{ emp.designation }} · {{ emp.department }}</div>
+          <div class="profile-sub" style="margin-top:.3rem;">{{ emp.emp_id }}</div>
+        </div>
+      </div>
+
+      <!-- Employee Information -->
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-header">
+          <h3>📋 Employee Information</h3>
+        </div>
+        <div class="card-body">
+          <div class="info-grid" style="margin-bottom:1.5rem;">
+            <div class="info-item">
+              <div class="info-label">Employee ID</div>
+              <div class="info-value">{{ emp.emp_id }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Full Name</div>
+              <div class="info-value">{{ emp.name }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Email Address</div>
+              <div class="info-value">{{ emp.email }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Department</div>
+              <div class="info-value">{{ emp.department }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Designation</div>
+              <div class="info-value">{{ emp.designation }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Join Date</div>
+              <div class="info-value">{{ emp.join_date.strftime('%d %b %Y') if emp.join_date else '—' }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Phone</div>
+              <div class="info-value">{{ emp.phone or '—' }}</div>
+            </div>
+          </div>
+
+          <!-- Update Phone -->
+          <div style="border-top:1px solid var(--border);padding-top:1.4rem;">
+            <h4 style="margin-bottom:1rem;font-size:.9rem;color:var(--navy);">Update Phone Number</h4>
+            <form method="POST" action="{{ url_for('employee_profile_update') }}"
+                  style="display:flex;gap:.8rem;align-items:flex-end;flex-wrap:wrap;">
+              <div class="form-group" style="flex:1;min-width:220px;margin-bottom:0;">
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone" name="phone" class="form-control"
+                       value="{{ emp.phone or '' }}" placeholder="+91 98765 43210" />
+              </div>
+              <button type="submit" class="btn btn-primary" style="margin-bottom:0;">Save Changes</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leave Balance Summary -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📊 Leave Balance</h3>
+          <a href="{{ url_for('apply_leave') }}" class="btn btn-sm btn-outline">Apply →</a>
+        </div>
+        <div class="card-body">
+          <div class="balance-grid">
+            <div class="balance-item">
+              <div class="balance-header">
+                <span class="balance-label">🎫 Casual Leave</span>
+                <span class="balance-count">{{ emp.casual_balance }} / 12 days</span>
+              </div>
+              <div class="balance-bar">
+                <div class="balance-fill teal"
+                     data-pct="{{ (emp.casual_balance / 12 * 100)|round }}"></div>
+              </div>
+            </div>
+            <div class="balance-item">
+              <div class="balance-header">
+                <span class="balance-label">🏥 Sick Leave</span>
+                <span class="balance-count">{{ emp.sick_balance }} / 10 days</span>
+              </div>
+              <div class="balance-bar">
+                <div class="balance-fill blue"
+                     data-pct="{{ (emp.sick_balance / 10 * 100)|round }}"></div>
+              </div>
+            </div>
+            <div class="balance-item">
+              <div class="balance-header">
+                <span class="balance-label">⭐ Earned Leave</span>
+                <span class="balance-count">{{ emp.earned_balance }} / 15 days</span>
+              </div>
+              <div class="balance-bar">
+                <div class="balance-fill orange"
+                     data-pct="{{ (emp.earned_balance / 15 * 100)|round }}"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </div><!-- /main-content -->
+</div>
+{% endblock %}

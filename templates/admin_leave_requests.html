@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% from 'Macros.html' import admin_sidebar %}
+{% block title %}Leave Requests — Admin Dashboard{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {{ admin_sidebar('leaves') }}
+
+  <div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-toggle" id="mobileToggle">☰</button>
+        <div class="topbar-title">
+          <h1>Leave Requests</h1>
+          <p>Review and approve / reject employee leave applications</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Filter Bar -->
+      <div class="card" style="margin-bottom:1.2rem;">
+        <div class="card-body" style="padding:.9rem 1.2rem;">
+          <form method="GET" style="display:flex;gap:.8rem;flex-wrap:wrap;align-items:flex-end;">
+            <div style="flex:1;min-width:180px;">
+              <label class="form-group" style="margin-bottom:0;">
+                <span style="display:block;font-size:.78rem;font-weight:600;color:var(--slate);
+                             text-transform:uppercase;letter-spacing:.04em;margin-bottom:.35rem;">
+                  Status
+                </span>
+                <select name="status" class="form-control">
+                  <option value="All" {% if status_filter == 'All' %}selected{% endif %}>All Status</option>
+                  <option value="Pending"  {% if status_filter == 'Pending'  %}selected{% endif %}>Pending</option>
+                  <option value="Approved" {% if status_filter == 'Approved' %}selected{% endif %}>Approved</option>
+                  <option value="Rejected" {% if status_filter == 'Rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+              </label>
+            </div>
+            <button type="submit" class="btn btn-primary">Filter</button>
+            {% if status_filter != 'All' %}
+            <a href="{{ url_for('admin_leave_requests') }}" class="btn btn-outline">Clear</a>
+            {% endif %}
+          </form>
+        </div>
+      </div>
+
+      <!-- Requests Table -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📋 Leave Requests</h3>
+          <span class="fs-sm text-muted">{{ leaves|length }} record(s)</span>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Type</th>
+                <th>From → To</th>
+                <th>Days</th>
+                <th>Status</th>
+                <th>Applied On</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for leave in leaves %}
+              <tr>
+                <td>
+                  <a href="{{ url_for('admin_employee_detail', emp_id=leave.employee_id) }}"
+                     style="font-weight:600;">
+                    {{ leave.employee_name }}
+                  </a>
+                </td>
+                <td>
+                  <span class="badge badge-{{ leave.leave_type|lower }}">{{ leave.leave_type }}</span>
+                </td>
+                <td class="fs-sm">
+                  {{ leave.start_date.strftime('%d %b %Y') }} → {{ leave.end_date.strftime('%d %b %Y') }}
+                </td>
+                <td><strong>{{ leave.total_days }}</strong></td>
+                <td>
+                  <span class="badge badge-{{ leave.status|lower }}">
+                    <span class="badge-dot"></span> {{ leave.status }}
+                  </span>
+                </td>
+                <td class="text-muted fs-sm">{{ leave.applied_on.strftime('%d %b %Y') }}</td>
+                <td>
+                  {% if leave.status == 'Pending' %}
+                  <div style="display:flex;gap:.4rem;">
+                    <button class="btn btn-sm btn-success"
+                            onclick="openActionModal({{ leave.id }}, 'Approved', '{{ leave.employee_name }}')">
+                      ✓ Approve
+                    </button>
+                    <button class="btn btn-sm btn-danger"
+                            onclick="openActionModal({{ leave.id }}, 'Rejected', '{{ leave.employee_name }}')">
+                      ✗ Reject
+                    </button>
+                  </div>
+                  {% else %}
+                  <span class="fs-sm text-muted">{{ leave.admin_remarks or '—' }}</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="7" style="text-align:center;padding:2.5rem;color:var(--muted);">
+                  No leave requests found.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </div><!-- /main-content -->
+</div>
+
+<!-- Action Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="actionModal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Leave Action</h3>
+      <button type="button" class="modal-close" id="modalCloseBtn">✕</button>
+    </div>
+    <p id="modalDesc" class="fs-sm text-muted" style="margin-bottom:1.2rem;"></p>
+    <form method="POST" id="actionForm">
+      <input type="hidden" id="modalAction" name="action" value="">
+      <div class="form-group">
+        <label for="remarks">Remarks (Optional)</label>
+        <textarea class="form-control" id="remarks" name="remarks"
+                  placeholder="Add any comments for the employee…"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" id="modalCancel">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="modalConfirm">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+function openActionModal(leaveId, action, empName) {
+  const overlay = document.getElementById('modalOverlay');
+  document.getElementById('modalTitle').textContent =
+    (action === 'Approved' ? 'Approve' : 'Reject') + ' Leave Request';
+  document.getElementById('modalDesc').textContent =
+    'You are about to ' + (action === 'Approved' ? 'approve' : 'reject') +
+    ' the leave request for ' + empName + '.';
+  document.getElementById('modalAction').value = action;
+  document.getElementById('actionForm').action =
+    "{{ url_for('admin_action', leave_id=0) }}".replace('/0', '/' + leaveId);
+  const confirmBtn = document.getElementById('modalConfirm');
+  confirmBtn.className = 'btn ' + (action === 'Approved' ? 'btn-success' : 'btn-danger');
+  confirmBtn.textContent = action === 'Approved' ? '✓ Approve' : '✗ Reject';
+  overlay.classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+document.getElementById('modalCancel').addEventListener('click', closeModal);
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+{% endblock %}
+{% endblock %}
